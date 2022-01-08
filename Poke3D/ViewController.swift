@@ -10,7 +10,7 @@ import SceneKit
 import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
-
+    
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
@@ -36,7 +36,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             configuration.maximumNumberOfTrackedImages = 2
             print("Images successfully added")
         }
-
+        
         // Run the view's session
         sceneView.session.run(configuration)
     }
@@ -49,7 +49,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     //MARK: - ARSCNViewDelegate methods
-
+    
     func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
         let node = SCNNode()
         
@@ -62,12 +62,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             
             node.addChildNode(planeNode)
             
-            if let pokeScene = SCNScene(named: "art.scnassets/eevee.scn") {
-                if let pokeNode = pokeScene.rootNode.childNodes.first {
-                    pokeNode.eulerAngles.x = .pi / 2
-                    planeNode.addChildNode(pokeNode)
-                }
+            if let cardName = imageAnchor.referenceImage.name,
+               let pokeScene = SCNScene(named: "art.scnassets/\(cardName).scn"),
+               let pokeNode = pokeScene.rootNode.childNodes.first {
+                pokeNode.eulerAngles.x = .pi / 2
+                planeNode.addChildNode(pokeNode)
             }
+            
         }
         return node
     }
