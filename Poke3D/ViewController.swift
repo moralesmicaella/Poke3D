@@ -21,6 +21,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
+        
+        sceneView.automaticallyUpdatesLighting = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -28,6 +30,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Create a session configuration
         let configuration = ARImageTrackingConfiguration()
+        
+        if let imagesToTrack = ARReferenceImage.referenceImages(inGroupNamed: "PokemonCards", bundle: .main) {
+            configuration.trackingImages = imagesToTrack
+            configuration.maximumNumberOfTrackedImages = 2
+            print("Images successfully added")
+        }
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -39,5 +47,29 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
+    
+    //MARK: - ARSCNViewDelegate methods
 
+    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+        let node = SCNNode()
+        
+        if let imageAnchor = anchor as? ARImageAnchor {
+            let plane = SCNPlane(width: imageAnchor.referenceImage.physicalSize.width,
+                                 height: imageAnchor.referenceImage.physicalSize.height)
+            let planeNode = SCNNode(geometry: plane)
+            plane.firstMaterial?.diffuse.contents = UIColor(white: 1.0, alpha: 0.5)
+            planeNode.eulerAngles.x = -.pi / 2
+            
+            node.addChildNode(planeNode)
+            
+            if let pokeScene = SCNScene(named: "art.scnassets/eevee.scn") {
+                if let pokeNode = pokeScene.rootNode.childNodes.first {
+                    pokeNode.eulerAngles.x = .pi / 2
+                    planeNode.addChildNode(pokeNode)
+                }
+            }
+        }
+        return node
+    }
+    
 }
